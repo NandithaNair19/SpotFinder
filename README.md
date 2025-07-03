@@ -59,12 +59,16 @@ pip --version
 1️⃣ Clone the Repository
 git clone https:https://github.com/NandithaNair19/SpotFinder.git
 cd spotfinder
+
 2️⃣ Install Dependencies
 pip install ultralytics paho-mqtt opencv-python flask
+
 3️⃣ Start the Detection System
 python detect_parking.py
+
 4️⃣ Start the Web Dashboard
 python app.py
+
 Once running, visit:
 👉 http://localhost:5000/
 
