@@ -54,7 +54,7 @@ python --version
 pip --version
 ```
 
-📂 Project Setup & Running the Environment
+## 📂 Project Setup & Running the Environment
 
 1️⃣ Clone the Repository
 git clone https:https://github.com/NandithaNair19/SpotFinder.git
@@ -72,10 +72,12 @@ python app.py
 Once running, visit:
 👉 http://localhost:5000/
 
-🏆 Achievement
+
+## 🏆 Achievement
 
 🥈 Runner-Up at AIOTopia -Gravitas'25
 Successfully integrated AI, IoT, and real-time data visualization into a single working prototype within 36 hours.
+
 
 💙 Made with innovation, teamwork, and a passion for solving real-world problems.
 
