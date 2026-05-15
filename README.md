@@ -36,7 +36,7 @@ SpotFinder follows a lightweight edge-to-dashboard architecture designed for low
 
 ### 3. Data Layer - Relational Database
 
-* Uses AWS RDS (PostgreSQL) for managed, cloud-based relational database services.
+* * Uses PostgreSQL as the relational database backend. The current setup supports managed PostgreSQL services such as Azure Database for PostgreSQL.
 * Stores parking lot metadata and live parking occupancy status.
 
 ### 4. Application Layer - Web Dashboard  
