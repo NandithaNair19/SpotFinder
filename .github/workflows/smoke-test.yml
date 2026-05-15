@@ -3,10 +3,10 @@ name: SpotFinder Smoke Test
 on:
   push:
     branches:
-      - main
+      - nanditha-azure-migration
   pull_request:
     branches:
-      - main
+      - nanditha-azure-migration
 
 jobs:
   smoke-test:
