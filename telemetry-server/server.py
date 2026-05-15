@@ -72,7 +72,7 @@ load_dotenv()
 drivername = os.getenv('DRIVERNAME')
 server = os.getenv('SERVER')
 db = os.getenv('DATABASE')
-usr = os.getenv('USER')
+usr = os.getenv('DB_USER')
 pwd = os.getenv('PASSWORD')
 port = os.getenv('PORT')
 id = os.getenv('UUID')
@@ -90,7 +90,10 @@ conn_url = URL.create(
 )
 
 # Establishing connection
-engine = create_engine(conn_url)
+engine = create_engine(
+    conn_url,
+    connect_args={"sslmode": "require"}
+)
 connection = engine.connect()
 
 
