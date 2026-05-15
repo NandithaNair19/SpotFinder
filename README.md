@@ -1,47 +1,41 @@
 # 🚗 SpotFinder – AI & IoT Based Smart Parking Finder
 
-SpotFinder is a real-time, AI-powered parking space detection system that uses YOLOv8 and MQTT to monitor and display live parking availability. Designed for urban parking efficiency, the system combines computer vision, IoT communication, and real-time visualization to help users identify available parking spaces efficiently.
-
-🥈 SpotFinder was awarded the Runner-Up position at the AIoTopia Hackathon 2025.
+**SpotFinder** is a real-time, AI-powered parking space detection system that uses **YOLOv8** and **MQTT** to monitor and display live parking availability. Designed for urban parking efficiency, this system was built as part of a hackathon and won the **Runner-Up** position for its practical and innovative use of technology.
 
 ---
 
-# 📌 Features
+## 📌 Features
 
-## Real-Time Detection
-- Detects occupied and vacant parking spots using camera feeds
-- Uses YOLOv8 for accurate parking occupancy detection
-- Performs inference directly on edge devices for reduced latency
+###  Real-Time Detection
+- Detects occupied and vacant parking spots using camera feeds.
+- Uses YOLOv8 for object detection to ensure high accuracy.
 
-## IoT Integration
-- Uses MQTT protocol for lightweight and fast telemetry communication
-- Supports real-time communication between edge devices and the telemetry server
-- Designed for low-power and resource-constrained edge systems
+###  IoT Integration
+- Uses MQTT protocol to enable lightweight and fast data transmission between edge devices and the server.
+- Supports seamless real-time communication.
 
-## Live Web Dashboard
-- Displays parking availability with live updates
-- Shows GPS coordinates of parking locations
-- Supports navigation using Google Maps
+###  Live Web Dashboard
+- Displays parking status with live updates.
+- Helps users locate available parking spaces visually and efficiently.
 
 ---
 
-# 🛠️ Tech Stack
+## 🛠️ Tech Stack
 
-| Component | Technology Used |
-|---|---|
-| Computer Vision | YOLOv8 (Ultralytics) |
+| Component     | Technology Used         |
+|--------------|--------------------------|
+| Computer Vision | YOLOv8 (Ultralytics)  |
 | Communication | MQTT (Mosquitto Broker) |
-| Backend | Python |
-| Database | PostgreSQL |
-| Frontend | HTML, CSS, JavaScript |
-| Visualization | Real-Time Web Dashboard |
+| Backend       | Python                  |
+| Frontend      | HTML, CSS, JavaScript   |
+| Visualization | Real-time Web Dashboard |
 
 ---
 
-# 🔄 How It Works
+## 🔄 How It Works
 
-```txt
-Camera Feed → YOLOv8 Detection → MQTT Publisher → MQTT Broker → Telemetry Server → Web Dashboard
+Camera Feed → YOLOv8 Detection → MQTT Publisher → MQTT Broker → MQTT Subscriber → Web 
+
 
 ---
 
@@ -291,13 +285,16 @@ Workflow file location:
 # Future Improvements
 
 * Docker-based deployment
-* Production-grade CI/CD pipeline
 * Multi-camera parking support
 * Mobile application integration
 * Cloud deployment automation
 
 ---
 
-# License
+## 🏆 Achievement
 
-This project was developed as part of AIoTopia Hackathon 2025.
+🥈 Runner-Up at AIOTopia -Gravitas'25
+Successfully integrated AI, IoT, and real-time data visualization into a single working prototype within 36 hours.
+
+
+💙 Made with innovation, teamwork, and a passion for solving real-world problems.
