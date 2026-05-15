@@ -1,7 +1,5 @@
-=======
 # 🚗 SpotFinder – AI & IoT Based Smart Parking Finder
 
-<<<<<<< HEAD
 **SpotFinder** is a real-time, AI-powered parking space detection system that uses **YOLOv8** and **MQTT** to monitor and display live parking availability. Designed for urban parking efficiency, this system was built as part of a hackathon and won the **Runner-Up** position for its practical and innovative use of technology.
 
 ---
