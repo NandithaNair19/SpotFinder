@@ -299,4 +299,4 @@ Successfully integrated AI, IoT, and real-time data visualization into a single 
 
 💙 Made with innovation, teamwork, and a passion for solving real-world problems.
 
-=======
+
