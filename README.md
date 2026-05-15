@@ -1,122 +1,303 @@
-# SpotFinder
+# 🚗 SpotFinder – AI & IoT Based Smart Parking Finder
 
-**SpotFinder** is a parking space detection system that leverages computer vision and IoT communication to detect and display parking space availability. The system provides near real-time parking availability updates using **YOLOv8** for parking space detection and **MQTT** for lightweight, low-latency data transmission from low-power and resource constrained edge devices.
+SpotFinder is a real-time, AI-powered parking space detection system that uses YOLOv8 and MQTT to monitor and display live parking availability. Designed for urban parking efficiency, the system combines computer vision, IoT communication, and real-time visualization to help users identify available parking spaces efficiently.
 
-🥈 **SpotFinder** was awarded the Runner-Up position at the AIoTopia hackathon 2025.
+🥈 SpotFinder was awarded the Runner-Up position at the AIoTopia Hackathon 2025.
 
-## Features
+---
 
-###  Real-Time Detection
-* Detects occupied and vacant parking spots using live camera feeds.
-* Utilizes YOLOv8 for accurate and efficient object detection.
+# 📌 Features
 
-###  IoT-Based Communication
-* Uses MQTT protocol to enable lightweight and low latency data transmission between edge devices and the server.
-* Enables real-time communication between edge devices and the server.
+## Real-Time Detection
+- Detects occupied and vacant parking spots using camera feeds
+- Uses YOLOv8 for accurate parking occupancy detection
+- Performs inference directly on edge devices for reduced latency
 
-###  Live Web Dashboard
-* Displays current parking availability with live updates
-* Provides GPS coordinates of available parking spots for easy navigation.
+## IoT Integration
+- Uses MQTT protocol for lightweight and fast telemetry communication
+- Supports real-time communication between edge devices and the telemetry server
+- Designed for low-power and resource-constrained edge systems
 
-## Architecture
+## Live Web Dashboard
+- Displays parking availability with live updates
+- Shows GPS coordinates of parking locations
+- Supports navigation using Google Maps
 
-SpotFinder follows a lightweight edge-to-dashboard architecture designed for low latency and modular deployment. The system separates detection, messaging, and visualization into independent components for scalability and maintainability.
+---
 
-### 1. Edge Layer - Detection & Publishing
+# 🛠️ Tech Stack
 
-* Captures photos every 10 seconds using a camera.
-* Runs inference on edge using the YOLOv8 model to detect parking space occupancy.
-* Publishes structured telemetry data as JSON messages to an MQTT topic.
+| Component | Technology Used |
+|---|---|
+| Computer Vision | YOLOv8 (Ultralytics) |
+| Communication | MQTT (Mosquitto Broker) |
+| Backend | Python |
+| Database | PostgreSQL |
+| Frontend | HTML, CSS, JavaScript |
+| Visualization | Real-Time Web Dashboard |
 
-### 2. Messaging Layer - MQTT Broker
+---
 
-* Receives telemetry data from edge devices by subscribing to the MQTT topic.
-* Parses JSON payloads to extract parking space status and GPS coordinates.
-* Performs upsert operations on the database to persist the latest parking space information.
+# 🔄 How It Works
 
-### 3. Data Layer - Relational Database
+```txt
+Camera Feed → YOLOv8 Detection → MQTT Publisher → MQTT Broker → Telemetry Server → Web Dashboard
 
-* * Uses PostgreSQL as the relational database backend. The current setup supports managed PostgreSQL services such as Azure Database for PostgreSQL.
-* Stores parking lot metadata and live parking occupancy status.
+---
 
-### 4. Application Layer - Web Dashboard  
+# Architecture
 
-* Flask-based web server that retrieves occupancy data from the AWS RDS database.
-* Provides users with an option to navigate to a parking lot using Google Maps.
-* Refreshes periodically to provide near real-time monitoring of parking space availability.
+SpotFinder follows a lightweight edge-to-dashboard architecture designed for low latency and modular deployment.
 
-## Getting Started
+## 1. Edge Layer – Detection & Publishing
 
-### Prerequisites
+The edge device:
 
-Before running the project, make sure you have the following installed:
+* Captures images periodically using a camera module
+* Runs YOLOv8 inference locally to detect occupied and vacant parking spaces
+* Publishes structured telemetry data as JSON messages through MQTT
 
-✅ Python 3.10+\
-✅ pip (Python package manager)\
-✅ An MQTT Broker (e.g., Mosquitto or AWS IoT Core)\
-✅ Edge processing unit with a camera module (e.g., Raspberry Pi)\
-✅ Verify that your database server is running.
+## 2. Messaging Layer – MQTT Broker
 
-To check if Python and pip are installed:
+The MQTT broker:
+
+* Receives telemetry data from edge devices
+* Enables lightweight and low-latency communication
+* Routes telemetry messages to subscribed services
+
+## 3. Data Layer – PostgreSQL Database
+
+The telemetry server:
+
+* Receives telemetry data from MQTT topics
+* Parses parking occupancy and GPS data
+* Stores parking metadata and occupancy information in PostgreSQL
+* Supports managed PostgreSQL services such as Azure Database for PostgreSQL
+
+## 4. Application Layer – Web Dashboard
+
+The Flask-based dashboard:
+
+* Retrieves parking occupancy data from PostgreSQL
+* Displays live parking availability information
+* Provides users with navigation support through Google Maps
+* Refreshes periodically for near real-time updates
+
+---
+
+# Project Structure
+
+```txt
+SpotFinder/
+│
+├── edge-device/
+│   ├── device.py
+│   ├── model.py
+│   └── model.pt
+│
+├── telemetry-server/
+│   ├── server.py
+│   └── .env.example
+│
+├── web-dashboard/
+│   └── app.py
+│
+├── model-training/
+│
+├── smoke_test.py
+├── requirements.txt
+└── README.md
+```
+
+---
+
+# Prerequisites
+
+Before running SpotFinder, ensure the following are installed:
+
+* Python 3.10 or later
+* pip (Python package manager)
+* Git
+
+Optional:
+
+* Raspberry Pi or edge device with a camera module for real hardware deployment
+* CounterFit simulator for local edge-device simulation
+
+Verify Python and pip installation:
 
 ```bash
 python --version
 pip --version
 ```
 
-### Installation
+---
 
-1. Clone the Repository
-```
-git clone https://github.com/amanamitabh/SpotFinder.git
-cd spotfinder
+# Installation
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/NandithaNair19/SpotFinder.git
+cd SpotFinder
 ```
 
-2. Install Dependencies
+## 2. Create and Activate a Virtual Environment
+
+```bash
+python -m venv venv
 ```
+
+### macOS/Linux
+
+```bash
+source venv/bin/activate
+```
+
+### Windows
+
+```bash
+venv\Scripts\activate
+```
+
+## 3. Install Project Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-3. Create a .env file in the edge-device directory and add the following environment variables:
-```
-DEVICE_NAME=<your_device_name>
-UUID=<your_device_uuid>
-TOPIC=<your_mqtt_topic>
-DEBUG=<1 for debug mode or 0 for production mode>
+---
+
+# Dependencies
+
+SpotFinder uses the dependencies listed in `requirements.txt`.
+
+Core libraries and frameworks include:
+
+* Flask
+* Flask-SocketIO
+* SQLAlchemy
+* PostgreSQL (psycopg2)
+* paho-mqtt
+* OpenCV
+* YOLOv8 / Ultralytics
+* PyTorch
+* CounterFit simulator libraries
+
+All project dependencies can be installed using:
+
+```bash
+pip install -r requirements.txt
 ```
 
-4. Create a .env file in the telemetry-server directory and add the following environment variables:
-```
-PASSWORD=<your_database_password>
-DATABASE=<your_database_name>
-USER=<your_database_user>
-SERVER=<your_database_server>
-PORT=<your_database_port>
-DRIVERNAME=<your_database_driver_name>
-UUID=<your_server_uuid>
-DEVICE_NAME=<your_server_device_name>
-TOPIC=<your_mqtt_topic>
+---
+
+# Environment Configuration
+
+Create environment files using the provided templates.
+
+## Telemetry Server
+
+```bash
+cp telemetry-server/.env.example telemetry-server/.env
 ```
 
-5. Create a .env file in the web-dashboard directory and add the following environment variables:
-```
-PASSWORD=<your_database_password>
-DATABASE=<your_database_name>
-USER=<your_database_user>
-SERVER=<your_database_server>
-PORT=<your_database_port>
-```
-6.  Copy the edge-device/ directory to your edge processing unit (e.g., Raspberry Pi) and run the edge device script:
-```
-python edge_device.py
+Update the values in `.env` using the configured PostgreSQL and MQTT credentials.
+
+Required variables:
+
+```env
+DRIVERNAME=postgresql+psycopg2
+SERVER=<postgres_server>
+DATABASE=<database_name>
+DB_USER=<database_user>
+PASSWORD=<database_password>
+PORT=5432
+
+UUID=<device_uuid>
+DEVICE_NAME=telemetry-server
+TOPIC=<mqtt_topic>
 ```
 
-7. Copy the telemetry-server/ directory to your telemetry server and run the script:
-```
+---
+
+# Running the Project
+
+## Start the Telemetry Server
+
+```bash
+cd telemetry-server
 python server.py
 ```
 
-8. Copy the web-dashboard/ directory to the web server and run the web dashboard script:
+## Start the Edge Device Simulator
+
+Open a new terminal:
+
+```bash
+cd edge-device
+python device.py
 ```
+
+## Start the Web Dashboard
+
+Open another terminal:
+
+```bash
+cd web-dashboard
 python app.py
 ```
+
+---
+
+# Smoke Test
+
+SpotFinder includes a lightweight smoke test used to verify that the core project dependencies install correctly and the development environment is configured properly.
+
+Run the smoke test locally using:
+
+```bash
+python smoke_test.py
+```
+
+The smoke test validates:
+
+* Python environment setup
+* Core dependency imports
+* MQTT dependency availability
+* SQLAlchemy/database library availability
+
+---
+
+# GitHub Actions CI Workflow
+
+SpotFinder uses GitHub Actions for automated smoke testing on push.
+
+The CI workflow automatically:
+
+* Installs dependencies
+* Sets up Python
+* Runs the smoke test
+* Validates that the project environment is functional
+
+Workflow file location:
+
+```txt
+.github/workflows/smoke-test.yml
+```
+
+---
+
+# Future Improvements
+
+* Docker-based deployment
+* Production-grade CI/CD pipeline
+* Multi-camera parking support
+* Mobile application integration
+* Cloud deployment automation
+
+---
+
+# License
+
+This project was developed as part of AIoTopia Hackathon 2025.
