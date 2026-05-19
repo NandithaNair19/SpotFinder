@@ -100,7 +100,7 @@ SpotFinder/
 │
 ├── smoke_test.py
 ├── requirements.txt
-├──requirements-ml.txt
+├── requirements-ml.txt
 └── README.md
 ```
 
@@ -165,7 +165,7 @@ python3.11 -m pip install -r requirements.txt && python3.11 -m pip install -r re
 
 # Dependencies
 
-SpotFinder uses the dependencies listed in `requirements.txt`.
+SpotFinder uses the dependencies listed in `requirements.txt` and ML YOLOv8 dependencies listed in `requirements-ml.txt`.
 
 Core libraries and frameworks include:
 
