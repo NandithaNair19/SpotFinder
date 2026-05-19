@@ -1,7 +1,14 @@
 print("Running SpotFinder smoke test...\n")
 
 import os
+import sys
 
+print(f"Running on Python version: {sys.version}\n")
+
+if sys.version_info < (3, 11):
+    raise Exception("Python 3.11 or higher is required")
+
+print("PASS: Python version compatibility check\n")
 def check(name, import_function):
     print(f"Checking {name}...")
     try:
