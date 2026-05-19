@@ -100,6 +100,7 @@ SpotFinder/
 │
 ├── smoke_test.py
 ├── requirements.txt
+|-- requirements-ml.txt
 └── README.md
 ```
 
