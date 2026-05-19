@@ -35,6 +35,15 @@ for folder in required_folders:
     else:
         print(f"FAIL: Missing folder '{folder}'\n")
         raise Exception(f"Missing folder: {folder}")
+# Optional ML / YOLOv8 check
+print("Checking optional ML dependencies...\n")
+
+try:
+    from ultralytics import YOLO
+    print("PASS: YOLOv8 (Ultralytics) available\n")
+except Exception as e:
+    print("WARNING: YOLOv8 dependencies not installed")
+    print(f"Details: {e}\n")
 
 # File checks
 print("Checking important files...\n")
