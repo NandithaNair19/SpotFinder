@@ -100,7 +100,7 @@ SpotFinder/
 │
 ├── smoke_test.py
 ├── requirements.txt
-|-- requirements-ml.txt
+├──requirements-ml.txt
 └── README.md
 ```
 
@@ -122,7 +122,7 @@ Optional:
 Verify Python and pip installation:
 
 ```bash
-python --version
+python3.11 --version
 pip --version
 ```
 
@@ -158,7 +158,7 @@ venv\Scripts\activate
 ## 3. Install Project Dependencies
 
 ```bash
-pip install -r requirements.txt
+python3.11 -m pip install -r requirements.txt && python3.11 -m pip install -r requirements-ml.txt
 ```
 
 ---
@@ -182,7 +182,7 @@ Core libraries and frameworks include:
 All project dependencies can be installed using:
 
 ```bash
-pip install -r requirements.txt
+python3.11 -m pip install -r requirements.txt && python3.11 -m pip install -r requirements-ml.txt
 ```
 
 ---
@@ -222,7 +222,7 @@ TOPIC=<mqtt_topic>
 
 ```bash
 cd telemetry-server
-python server.py
+python3.11 server.py
 ```
 
 ## Start the Edge Device Simulator
@@ -231,7 +231,7 @@ Open a new terminal:
 
 ```bash
 cd edge-device
-python device.py
+python3.11 device.py
 ```
 
 ## Start the Web Dashboard
@@ -240,7 +240,7 @@ Open another terminal:
 
 ```bash
 cd web-dashboard
-python app.py
+python3.11 app.py
 ```
 
 ---
@@ -252,7 +252,7 @@ SpotFinder includes a lightweight smoke test used to verify that the core projec
 Run the smoke test locally using:
 
 ```bash
-python smoke_test.py
+python3.11 smoke_test.py
 ```
 
 The smoke test validates:
