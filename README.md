@@ -291,7 +291,14 @@ Workflow file location:
 * Cloud deployment automation
 
 ---
+| Component | Cost |
+|---|---|
+| Azure PostgreSQL | ~$3–18/month (paused vs running) |
+| MQTT (HiveMQ public) | $0 |
+| Google Maps API | $0 (well within free tier) |
+| Everything else | $0 |
 
+___
 ## 🏆 Achievement
 
 🥈 Runner-Up at AIOTopia -Gravitas'25
