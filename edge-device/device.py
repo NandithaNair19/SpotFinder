@@ -11,139 +11,158 @@ import counterfit_shims_serial
 import model
 
 print("Starting device.py...")
-# Load environment variables
+
 load_dotenv()
-device_name = os.getenv('DEVICE_NAME')
-id = os.getenv('UUID')
-topic = os.getenv('TOPIC')
 
-def print_gps_data(line):
-    """Print raw GPS data read from the serial input."""
-    print(line.rstrip())
+device_name = os.getenv("DEVICE_NAME", "edge-device")
+id = os.getenv("UUID", "test-device")
+topic = os.getenv("TOPIC", "spotfinder_gps")
 
+client_name = id + "_" + device_name
+client_telemetry_topic = id + "/" + topic
 
-def pad_coordinate(raw_value, direction):
-    """
-    Pad latitude and longitude strings with leading zeros to match
-    the standard NMEA coordinate format.
-    """
+print("Client name:", client_name)
+print("MQTT topic:", client_telemetry_topic)
 
-    if not raw_value:
-        return None
-    if direction in ['N', 'S']:
-        return raw_value.zfill(9)
-    elif direction in ['E', 'W']:
-        return raw_value.zfill(10)
-    return raw_value
-
-
-def convert_to_decimal(raw_value, direction):
-    """
-    Convert NMEA GPS coordinates into decimal degrees.
-    Latitudes (N/S) have 2 degree digits, longitudes (E/W) have 3 degree digits.
-    Returns decimal degree float.
-    """
-    if not raw_value:
-        return None
-
-    raw_value = raw_value.strip()
-
-    # Determine if this is latitude or longitude based on direction
-    if direction in ['N', 'S']:
-        degree_len = 2
-    elif direction in ['E', 'W']:
-        degree_len = 3
-    else:
-        return None  # Invalid direction
-
-    # Split into degrees and minutes
-    degrees = float(raw_value[:degree_len])
-    minutes = float(raw_value[degree_len:])
-
-    decimal = degrees + (minutes / 60)
-
-    # Apply sign for S/W
-    if direction in ['S', 'W']:
-        decimal *= -1
-
-    return decimal
-
-
-# Unique device and topic identifiers
-client_name = id + '_' + device_name
-
-# Defining telemetry topic for receiving telemetry
-client_telemetry_topic = id + '/' + topic
-print("Connecting to MQTT broker...")
-# Creating MQTT client and connecting to broker
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_name)
+
+print("Connecting to MQTT broker...")
 mqtt_client.connect("broker.hivemq.com", 1883, 60)
 mqtt_client.loop_start()
 print("MQTT connected!")
 
+print("Connecting to CounterFit...")
+CounterFitConnection.init("127.0.0.1", 5000)
 
-# Initialize CounterFit hardware simulator
-CounterFitConnection.init('127.0.0.1', 5000)
+serial = counterfit_shims_serial.Serial("/dev/ttyAMA0")
 
-# Simulated serial GPS module
-serial = counterfit_shims_serial.Serial('/dev/ttyAMA0')
-
-# Simulated PiCamera setup
 camera = PiCamera()
 camera.resolution = (1920, 1080)
 camera.rotation = 0
 
 
-try:
-        
-    # Infinite loop to continuously capture images, classify and send data
-    while True:
+def wait_for_gps(max_attempts=20):
+    print("Waiting for CounterFit GPS...")
+
+    for attempt in range(max_attempts):
         try:
-            # Read GPS data line from serial input
-            line = serial.readline().decode('utf-8')
-            if not line:
-                continue
+            line = serial.readline().decode("utf-8", errors="ignore").strip()
 
-            print_gps_data(line)
+            if line and line.startswith("$GPGGA"):
+                print("GPS ready")
+                return True
 
-            # Capture image from camera and store it in memory
+        except Exception as e:
+            print("GPS check failed:", e)
+
+        print("GPS not ready yet...")
+        time.sleep(2)
+
+    print("GPS not ready, using fallback location")
+    return False
+
+
+def wait_for_camera(max_attempts=20):
+    print("Waiting for CounterFit camera...")
+
+    for attempt in range(max_attempts):
+        try:
             image = io.BytesIO()
-            camera.capture(image, 'jpeg')
+            camera.capture(image, "jpeg")
             image.seek(0)
 
-            # Store a copy of the latest image
-            with open('image.jpg', 'wb') as image_file:
-                image_file.write(image.getvalue())
+            if len(image.getvalue()) > 1000:
+                with open("image.jpg", "wb") as image_file:
+                    image_file.write(image.getvalue())
 
-            # Run ML model for parking occupancy detection
-            stats = model.predict()
+                print("Camera ready")
+                return True
 
-            # Parse GPS NMEA sentence safely
-            try:
-                msg = pynmea2.parse(line)
-                stats["lat"] = round(msg.latitude, 9)
-                stats["lon"] = round(msg.longitude, 9)
-            except Exception:
-                print("Using default demo GPS location")
+        except Exception as e:
+            print("Camera check failed:", e)
+
+        print("Camera not ready yet...")
+        time.sleep(2)
+
+    print("Camera not ready, using fallback parking counts")
+    return False
+
+
+gps_ready = wait_for_gps()
+camera_ready = wait_for_camera()
+
+try:
+    while True:
+        try:
+            # GPS
+            line = None
+
+            if gps_ready:
+                try:
+                    line = serial.readline().decode("utf-8", errors="ignore").strip()
+
+                    if line:
+                        print(line)
+
+                except Exception:
+                    print("Could not read GPS this round, using fallback location")
+                    line = None
+
+            # Camera + YOLO
+            if camera_ready:
+                try:
+                    image = io.BytesIO()
+                    camera.capture(image, "jpeg")
+                    image.seek(0)
+
+                    with open("image.jpg", "wb") as image_file:
+                        image_file.write(image.getvalue())
+
+                    stats = model.predict()
+
+                except Exception as e:
+                    print("Camera/model failed this round, using fallback counts")
+                    print("Reason:", e)
+
+                    stats = {
+                        "vacant": 5,
+                        "occupied": 3,
+                        "inference_time_ms": 0
+                    }
+            else:
+                stats = {
+                    "vacant": 5,
+                    "occupied": 3,
+                    "inference_time_ms": 0
+                }
+
+            # Parse GPS
+            if line:
+                try:
+                    msg = pynmea2.parse(line)
+                    stats["lat"] = round(msg.latitude, 9)
+                    stats["lon"] = round(msg.longitude, 9)
+
+                except Exception:
+                    print("Invalid GPS data, using fallback location")
+                    stats["lat"] = 12.9716
+                    stats["lon"] = 77.5946
+            else:
                 stats["lat"] = 12.9716
                 stats["lon"] = 77.5946
 
             stats["client_name"] = client_name
 
-            # Convert data to JSON and publish telemetry data to MQTT topic
             data = json.dumps(stats)
-            print("Sending telemetry ", data)
+            print("Sending telemetry:", data)
+
             mqtt_client.publish(client_telemetry_topic, data)
 
-            # Wait for 10 seconds before capturing the next image 
             time.sleep(10)
 
-        except pynmea2.ParseError as e:
-            print(f"GPS Parse Error: {e}")
-
         except Exception as e:
-            print(f"Unexpected Error: {e}")
-
+            print("Unexpected loop error:", e)
+            time.sleep(5)
 
 except KeyboardInterrupt:
     print("Exiting...")
