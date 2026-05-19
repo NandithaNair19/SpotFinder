@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import counterfit_shims_serial
 import model
 
+print("Starting device.py...")
 # Load environment variables
 load_dotenv()
 device_name = os.getenv('DEVICE_NAME')
@@ -73,10 +74,10 @@ client_name = id + '_' + device_name
 
 # Defining telemetry topic for receiving telemetry
 client_telemetry_topic = id + '/' + topic
-
+print("Connecting to MQTT broker...")
 # Creating MQTT client and connecting to broker
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_name)
-mqtt_client.connect("test.mosquitto.org", 1883)
+mqtt_client.connect("broker.hivemq.com", 1883, 60)
 mqtt_client.loop_start()
 print("MQTT connected!")
 
@@ -117,10 +118,16 @@ try:
             # Run ML model for parking occupancy detection
             stats = model.predict()
 
-            # Parse GPS NMEA sentence
-            msg = pynmea2.parse(line)
-            stats["lat"] = round(msg.latitude, 9)
-            stats["lon"] = round(msg.longitude, 9)
+            # Parse GPS NMEA sentence safely
+            try:
+                msg = pynmea2.parse(line)
+                stats["lat"] = round(msg.latitude, 9)
+                stats["lon"] = round(msg.longitude, 9)
+            except Exception:
+                print("Using default demo GPS location")
+                stats["lat"] = 12.9716
+                stats["lon"] = 77.5946
+
             stats["client_name"] = client_name
 
             # Convert data to JSON and publish telemetry data to MQTT topic

@@ -5,6 +5,7 @@ from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -13,8 +14,8 @@ CORS(app)
 # Load environment variables
 server = os.getenv('SERVER')
 db = os.getenv('DATABASE')
-usr = os.getenv('USER')
-pwd = os.getenv('PASSWORD')
+usr = os.getenv('DB_USER')
+pwd = os.getenv('DB_PASSWORD')
 port = os.getenv('PORT')
 
 # Database connection
@@ -23,7 +24,8 @@ DB_CONFIG = {
     'dbname': db,
     'user': usr,
     'password': pwd,
-    'port': port
+    'port': port,
+    'sslmode': 'require'
 }
 
 

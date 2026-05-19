@@ -1,13 +1,16 @@
-venv/
+# Environment files
 .env
+
+# Python cache
 __pycache__/
 *.pyc
 
-# Environment files
-**/.env
+# Generated images
+edge-device/image.jpg
+edge-device/annotated_img.jpg
 
-# Python cache
-**/__pycache__/
-
-# OS files
+# macOS
 .DS_Store
+
+# Virtual environment
+venv/
