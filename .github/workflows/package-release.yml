@@ -1,0 +1,29 @@
+name: Package SpotFinder Release
+
+on:
+  push:
+    branches:
+      - nanditha-azure-migration
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Create ZIP package
+        run: |
+          zip -r SpotFinder-mac.zip . \
+            -x "venv/*" \
+            -x ".git/*" \
+            -x "*/.env" \
+            -x "__pycache__/*" \
+            -x "*/__pycache__/*"
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpotFinder-mac
+          path: SpotFinder-mac.zip
