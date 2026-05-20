@@ -1,61 +1,47 @@
 #!/bin/bash
-
+ 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
-
-echo ""
+ 
 echo "Starting SpotFinder..."
-echo ""
-
-if ! curl -s http://127.0.0.1:5000 > /dev/null; then
-    echo "CounterFit is not running."
-    echo ""
-    echo "First do this:"
-    echo "1. Open a new terminal"
-    echo "2. Run: counterfit"
-    echo "3. Open: http://127.0.0.1:5000"
-    echo "4. Configure Camera and GPS"
-    echo "5. Then run ./start.sh again"
-    exit 1
-fi
-
-echo "CounterFit is running."
-
+ 
 source "$SCRIPT_DIR/venv/bin/activate"
-
-echo ""
+ 
 echo "Starting telemetry server..."
 cd "$SCRIPT_DIR/telemetry-server"
 python3.11 server.py &
 SERVER_PID=$!
 cd "$SCRIPT_DIR"
-
+ 
 sleep 3
-
+ 
 echo "Starting edge device..."
 cd "$SCRIPT_DIR/edge-device"
 python3.11 device.py &
 DEVICE_PID=$!
 cd "$SCRIPT_DIR"
-
+ 
 sleep 3
-
+ 
 echo "Starting dashboard..."
 cd "$SCRIPT_DIR/web-dashboard"
 python3.11 app.py &
 DASHBOARD_PID=$!
 cd "$SCRIPT_DIR"
-
+ 
 sleep 2
+ 
+echo ""
+
+echo " SpotFinder is running!"
 
 echo ""
-echo "SpotFinder is running!"
+echo " Dashboard:   http://127.0.0.1:8000"
+echo " CounterFit:  http://127.0.0.1:5000"
 echo ""
-echo "Dashboard:   http://127.0.0.1:8000"
-echo "CounterFit:  http://127.0.0.1:5000"
-echo ""
-echo "Press Ctrl+C to stop all services."
+echo " Press Ctrl+C to stop all services."
 
+ 
 trap "echo 'Stopping SpotFinder...'; kill $SERVER_PID $DEVICE_PID $DASHBOARD_PID 2>/dev/null; exit" SIGINT SIGTERM
-
+ 
 wait
