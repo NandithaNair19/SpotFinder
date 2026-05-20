@@ -1,96 +1,38 @@
-name: SpotFinder Smoke Test
+name: "SpotFinder Smoke Test"
 
 on:
   push:
     branches:
-      - nanditha-azure-migration
+      - "nanditha-azure-migration"
 
 jobs:
   smoke-test:
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: "actions/checkout@v4"
 
-      - uses: actions/setup-python@v5
+      - uses: "actions/setup-python@v5"
         with:
           python-version: "3.11"
 
-      - run: python -m pip install --upgrade 
-pip
+      - run: "python -m pip install --upgrade pip"
 
-      - run: python -m pip install -r 
-requirements.txt
+      - run: "python -m pip install -r requirements.txt"
 
-      - run: python -m pip install -r 
-requirements-ml.txt
+      - run: "python -m pip install -r requirements-ml.txt"
 
-      - run: python create_env_for_ci.py
+      - run: "python create_env_for_ci.py"
         env:
-          DB_SERVER: ${{ secrets.DB_SERVER }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD 
-}}
-          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_SERVER: "${{ secrets.DB_SERVER }}"
+          DB_NAME: "${{ secrets.DB_NAME }}"
+          DB_USER: "${{ secrets.DB_USER }}"
+          DB_PASSWORD: "${{ secrets.DB_PASSWORD }}"
+          DB_PORT: "${{ secrets.DB_PORT }}"
 
-      - run: python smoke_test.py
+      - run: "python smoke_test.py"
 
-      - uses: actions/upload-artifact@v4
+      - uses: "actions/upload-artifact@v4"
         with:
-          name: smoke-test-report
-          path: smoke-test-report.txtøname: 
-SpotFinder 
-Smoke 
-Test
-
-on:
-  push:
-    branches:
-      - main
-      - nanditha-azure-migration
-  pull_request:
-    branches:
-      - main
-      - nanditha-azure-migration
-
-jobs:
-  smoke-test:
-    runs-on: ubuntu-latest
-
-    env:
-      DB_SERVER: ${{ secrets.DB_SERVER }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-
-      - name: Install core dependencies
-        run: python -m pip install -r requirements.txt
-
-      - name: Install ML dependencies
-        run: python -m pip install -r requirements-ml.txt
-
-      - name: Create env files for smoke test
-        run: python create_env_for_ci.py
-
-      - name: Run smoke test
-        run: python smoke_test.py
-
-      - name: Upload smoke test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: smoke-test-report
-          path: smoke-test-report.txt
+          name: "smoke-test-report"
+          path: "smoke-test-report.txt"
