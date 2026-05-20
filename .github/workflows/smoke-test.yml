@@ -3,6 +3,74 @@ name: SpotFinder Smoke Test
 on:
   push:
     branches:
+      - main
+      - nanditha-azure-migration
+  pull_request:
+    branches:
+      - main
+      - nanditha-azure-migration
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade 
+pip
+
+      - name: Install core dependencies
+        run: python -m pip install -r 
+requirements.txt
+
+      - name: Install ML dependencies
+        run: python -m pip install -r 
+requirements-ml.txt
+
+      - name: Create env files for smoke test
+        run: |
+          printf 
+"DRIVERNAME=postgresql+psycopg2\nSERVER=${{ 
+secrets.DB_SERVER }}\nDATABASE=${{ 
+secrets.DB_NAME }}\nDB_USER=${{ secrets.DB_USER 
+}}\nDB_PASSWORD=${{ secrets.DB_PASSWORD 
+}}\nPORT=${{ secrets.DB_PORT 
+}}\nUUID=test-device\nDEVICE_NAME=telemetry-server\nTOPIC=spotfinder_gps\n" 
+> telemetry-server/.env
+          printf 
+"DRIVERNAME=postgresql+psycopg2\nSERVER=${{ 
+secrets.DB_SERVER }}\nDATABASE=${{ 
+secrets.DB_NAME }}\nDB_USER=${{ secrets.DB_USER 
+}}\nDB_PASSWORD=${{ secrets.DB_PASSWORD 
+}}\nPORT=${{ secrets.DB_PORT }}\n" > 
+web-dashboard/.env
+          printf 
+"DEVICE_NAME=edge-device\nUUID=test-device\nTOPIC=spotfinder_gps\nDEBUG=0\n" 
+> edge-device/.env
+
+      - name: Run smoke test
+        run: python smoke_test.py
+
+      - name: Upload smoke test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-report
+          path: smoke-test-report.txtname: 
+SpotFinder 
+Smoke 
+Test
+
+on:
+  push:
+    branches:
       - nanditha-azure-migration
   pull_request:
     branches:
