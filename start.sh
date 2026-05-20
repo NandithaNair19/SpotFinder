@@ -1,6 +1,5 @@
 #!/bin/bash
  
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
  
@@ -43,7 +42,6 @@ echo ""
 echo " Press Ctrl+C to stop all services."
 
  
-# Keep script alive and kill all child processes on exit
 trap "echo 'Stopping SpotFinder...'; kill $SERVER_PID $DEVICE_PID $DASHBOARD_PID 2>/dev/null; exit" SIGINT SIGTERM
  
 wait
