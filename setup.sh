@@ -74,5 +74,4 @@ echo "- GPS UART on /dev/ttyAMA0"
 echo ""
 echo "After CounterFit setup, open a new terminal and run:"
 echo "./start.sh"
-
 counterfit
