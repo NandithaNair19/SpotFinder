@@ -2,19 +2,20 @@
 
 cd "$(dirname "$0")"
 
-echo "Fixing permissions..."
+echo "Removing macOS quarantine..."
+xattr -dr com.apple.quarantine . 2>/dev/null
 
-chmod +x setup.sh
-chmod +x start.sh
+echo "Fixing permissions..."
+chmod +x setup.sh start.sh
 
 echo "Starting SpotFinder..."
 
 if [ ! -d "venv" ]; then
     echo "First time setup..."
-    bash setup.sh
+    /bin/bash setup.sh
 fi
 
-bash start.sh
+/bin/bash start.sh
 
 echo ""
 echo "Press any key to close..."
