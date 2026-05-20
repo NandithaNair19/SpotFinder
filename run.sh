@@ -1,69 +1,109 @@
 #!/bin/bash
+ 
+# Always run from the project root
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+ 
+echo ""
 
+echo " SpotFinder Setup"
 
-echo "Setting up SpotFinder..."
-
-
-# Create virtual environment if missing
-if [ ! -d "venv" ]; then
-    echo "Creating virtual environment..."
-    python3.11 -m venv venv
+echo ""
+ 
+# DB config
+read -p "Enter DB server: " DB_SERVER
+read -p "Enter DB name [postgres]: " DB_NAME
+DB_NAME=${DB_NAME:-postgres}
+read -p "Enter DB user: " DB_USER
+read -s -p "Enter DB password: " DB_PASSWORD
+echo ""
+read -p "Enter DB port [5432]: " DB_PORT
+DB_PORT=${DB_PORT:-5432}
+ 
+echo ""
+echo "Creating .env files..."
+ 
+cat > "$SCRIPT_DIR/telemetry-server/.env" <<EOF
+DRIVERNAME=postgresql+psycopg2
+SERVER=$DB_SERVER
+DATABASE=$DB_NAME
+DB_USER=$DB_USER
+DB_PASSWORD=$DB_PASSWORD
+PORT=$DB_PORT
+UUID=test-device
+DEVICE_NAME=telemetry-server
+TOPIC=spotfinder_gps
+EOF
+ 
+cat > "$SCRIPT_DIR/web-dashboard/.env" <<EOF
+SERVER=$DB_SERVER
+DATABASE=$DB_NAME
+DB_USER=$DB_USER
+DB_PASSWORD=$DB_PASSWORD
+PORT=$DB_PORT
+EOF
+ 
+cat > "$SCRIPT_DIR/edge-device/.env" <<EOF
+DEVICE_NAME=edge-device
+UUID=test-device
+TOPIC=spotfinder_gps
+DEBUG=0
+EOF
+ 
+echo ".env files created!"
+ 
+# Virtual environment
+echo ""
+echo "Setting up virtual environment..."
+ 
+if [ ! -d "$SCRIPT_DIR/venv" ]; then
+    python3.11 -m venv "$SCRIPT_DIR/venv"
 fi
-
-# Activate venv
-source venv/bin/activate
-
-# Upgrade pip
+ 
+source "$SCRIPT_DIR/venv/bin/activate"
 python3.11 -m pip install --upgrade pip
-
-# Install dependencies
+ 
+echo ""
 echo "Installing dependencies..."
-pip install -r requirements.txt
-pip install -r requirements-ml.txt
+ 
+pip install -r "$SCRIPT_DIR/requirements.txt"
+pip install -r "$SCRIPT_DIR/requirements-ml.txt"
+pip install counterfit counterfit-connection counterfit-shims-serial counterfit-shims-picamera
+ 
+echo ""
 
-# Install CounterFit packages
-pip install counterfit
-pip install counterfit-connection
-pip install counterfit-shims-serial
-pip install counterfit-shims-picamera
+echo " Setup complete!"
 
-# Run smoke test
-echo "Running smoke test..."
-python3.11 smoke_test.py || exit 1
+echo ""
+echo " Starting CounterFit on http://127.0.0.1:5000"
+echo ""
+echo " Please open http://127.0.0.1:5000 and configure:"
+echo ""
+echo "   1. Camera sensor:"
+echo "      - Type: Camera"
+echo "      - Port: PiCamera"
+echo "      - Source: File"
+echo "      - Image: parking.jpg"
+echo ""
+echo "   2. GPS sensor:"
+echo "      - Type: UART GPS"
+echo "      - Port: /dev/ttyAMA0"
+echo "      - Source: Lat/Lon"
+echo "      - Enable Repeat"
+echo ""
+echo " Once sensors are configured, come back here"
+echo " and press Enter to launch SpotFinder."
 
-# Start CounterFit
-echo "Starting CounterFit..."
+echo ""
+ 
 counterfit &
-sleep 8
-
-# Start telemetry server
-echo "Starting telemetry server..."
-cd telemetry-server
-python3.11 server.py &
-cd ..
-
+COUNTERFIT_PID=$!
+ 
 sleep 3
-
-# Start edge device
-echo "Starting edge device..."
-cd edge-device
-python3.11 device.py &
-cd ..
-
-sleep 3
-
-# Launch dashboard
+ 
+read -p "Press Enter when CounterFit sensors are configured..."
+ 
 echo ""
-
-echo "SpotFinder is running!"
-echo ""
-echo "Dashboard:"
-echo "http://127.0.0.1:8000"
-echo ""
-echo "CounterFit:"
-echo "http://127.0.0.1:5000"
-
-
-
-cd web-dashboard
-python3.11 app.py
+echo "Launching SpotFinder..."
+ 
+bash "$SCRIPT_DIR/start.sh"
