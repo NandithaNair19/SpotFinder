@@ -26,6 +26,33 @@ jobs:
 
       - name: Install ML dependencies
         run: python -m pip install -r requirements-ml.txt
+      - name: Create env files for smoke test
+  	run: |
+    	 cat > telemetry-server/.env <<EOF
+    	 DRIVERNAME=postgresql+psycopg2
+    	 SERVER=${{ secrets.DB_SERVER }}
+    	 DATABASE=${{ secrets.DB_NAME }}
+    	 DB_USER=${{ secrets.DB_USER }}
+    	 DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+    	 PORT=${{ secrets.DB_PORT }}
+    	 UUID=test-device
+    	 DEVICE_NAME=telemetry-server
+    	 TOPIC=spotfinder_gps
+    	 EOF
+
+    	 cp telemetry-server/.env web-dashboard/.env
+
+    	 cat > edge-device/.env <<EOF
+    	 DEVICE_NAME=edge-device
+    	 UUID=test-device
+    	 TOPIC=spotfinder_gps
+    	 DEBUG=0
+    	 EOF
 
       - name: Run smoke test
         run: python smoke_test.py
+      - name: Upload smoke test report
+  	uses: actions/upload-artifact@v4
+  	with:
+    	 name: smoke-test-report
+    	 path: smoke-test-report.txt

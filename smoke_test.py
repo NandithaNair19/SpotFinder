@@ -1,72 +1,120 @@
-print("Running SpotFinder smoke test...\n")
-
 import os
 import sys
+import importlib
+from datetime import datetime
+from pathlib import Path
 
-print(f"Running on Python version: {sys.version}\n")
+ROOT = Path(__file__).resolve().parent
+REPORT = ROOT / "smoke-test-report.txt"
 
-if sys.version_info < (3, 11):
-    raise Exception("Python 3.11 or higher is required")
+results = []
 
-print("PASS: Python version compatibility check\n")
-def check(name, import_function):
-    print(f"Checking {name}...")
+def check(name, func):
     try:
-        import_function()
-        print(f"PASS: {name}\n")
+        func()
+        results.append((name, "PASSED", "OK"))
     except Exception as e:
-        print(f"FAIL: {name}")
-        print(f"Error: {e}\n")
-        raise
+        results.append((name, "FAILED", str(e)))
 
-# Dependency checks
-check("python-dotenv import", lambda: __import__("dotenv"))
-check("SQLAlchemy import", lambda: __import__("sqlalchemy"))
-check("MQTT client import", lambda: __import__("paho.mqtt.client"))
-check("Flask import", lambda: __import__("flask"))
+def check_python():
+    assert sys.version_info >= (3, 11), "Python 3.11+ required"
 
-# Folder checks
-print("Checking project folders...\n")
+def check_core_dependencies():
+    packages = [
+        "flask",
+        "sqlalchemy",
+        "dotenv",
+        "paho.mqtt.client",
+        "psycopg2",
+    ]
+    for package in packages:
+        importlib.import_module(package)
 
-required_folders = [
-    "edge-device",
-    "telemetry-server",
-    "web-dashboard",
-    "model-training"
-]
+def check_ml_dependencies():
+    packages = [
+        "cv2",
+        "numpy",
+        "ultralytics",
+    ]
+    for package in packages:
+        importlib.import_module(package)
 
-for folder in required_folders:
-    print(f"Checking folder: {folder}...")
-    if os.path.isdir(folder):
-        print(f"PASS: Found folder '{folder}'\n")
-    else:
-        print(f"FAIL: Missing folder '{folder}'\n")
-        raise Exception(f"Missing folder: {folder}")
-# Optional ML / YOLOv8 check
-print("Checking optional ML dependencies...\n")
+def check_project_folders():
+    required = [
+        "edge-device",
+        "telemetry-server",
+        "web-dashboard",
+        "requirements.txt",
+        "requirements-ml.txt",
+    ]
+    for item in required:
+        assert (ROOT / item).exists(), f"Missing {item}"
 
-try:
-    from ultralytics import YOLO
-    print("PASS: YOLOv8 (Ultralytics) available\n")
-except Exception as e:
-    print("WARNING: YOLOv8 dependencies not installed")
-    print(f"Details: {e}\n")
+def check_env_files():
+    required = [
+        "telemetry-server/.env",
+        "web-dashboard/.env",
+        "edge-device/.env",
+    ]
+    for item in required:
+        assert (ROOT / item).exists(), f"Missing {item}"
 
-# File checks
-print("Checking important files...\n")
+def check_database_connection():
+    from dotenv import load_dotenv
+    from sqlalchemy import create_engine, text
 
-required_files = [
-    "requirements.txt",
-    ".github/workflows/smoke-test.yml",
-    "telemetry-server/.env.example"
-]
+    env_path = ROOT / "telemetry-server" / ".env"
+    load_dotenv(env_path)
 
-for file in required_files:
-    print(f"Checking file: {file}...")
-    if os.path.isfile(file):
-        print(f"PASS: Found file '{file}'\n")
-    else:
-        print(f"FAIL: Missing file '{file}'\n")
-        raise Exception(f"Missing file: {file}")
+    driver = os.getenv("DRIVERNAME")
+    server = os.getenv("SERVER")
+    database = os.getenv("DATABASE")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    port = os.getenv("PORT", "5432")
 
-print("All SpotFinder smoke tests passed successfully.")
+    missing = []
+    for key, value in {
+        "DRIVERNAME": driver,
+        "SERVER": server,
+        "DATABASE": database,
+        "DB_USER": user,
+        "DB_PASSWORD": password,
+        "PORT": port,
+    }.items():
+        if not value:
+            missing.append(key)
+
+    assert not missing, f"Missing DB env variables: {', '.join(missing)}"
+
+    url = f"{driver}://{user}:{password}@{server}:{port}/{database}?sslmode=require"
+    engine = create_engine(url, pool_pre_ping=True)
+
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+
+check("Python version", check_python)
+check("Core dependencies", check_core_dependencies)
+check("ML dependencies", check_ml_dependencies)
+check("Project folders/files", check_project_folders)
+check("Environment files", check_env_files)
+check("Database connection", check_database_connection)
+
+passed = sum(1 for _, status, _ in results if status == "PASSED")
+failed = sum(1 for _, status, _ in results if status == "FAILED")
+
+with open(REPORT, "w") as f:
+    f.write("SpotFinder Smoke Test Report\n")
+    f.write("============================\n\n")
+    f.write(f"Generated at: {datetime.now()}\n")
+    f.write(f"Python: {sys.version}\n\n")
+    f.write(f"Summary: {passed} passed, {failed} failed\n\n")
+
+    for name, status, message in results:
+        f.write(f"{name}: {status}\n")
+        f.write(f"Details: {message}\n\n")
+
+print(REPORT.read_text())
+
+if failed > 0:
+    sys.exit(1)
