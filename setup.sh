@@ -4,16 +4,19 @@ echo "Setting up SpotFinder..."
 
 echo ""
 read -p "Enter DB server: " DB_SERVER
+
 read -p "Enter DB name [postgres]: " DB_NAME
 DB_NAME=${DB_NAME:-postgres}
 
 read -p "Enter DB user: " DB_USER
+
 read -s -p "Enter DB password: " DB_PASSWORD
 echo ""
 
 read -p "Enter DB port [5432]: " DB_PORT
 DB_PORT=${DB_PORT:-5432}
 
+echo ""
 echo "Creating .env files..."
 
 cat > telemetry-server/.env <<EOF
@@ -43,6 +46,9 @@ TOPIC=spotfinder_gps
 DEBUG=0
 EOF
 
+echo ""
+echo "Setting up virtual environment..."
+
 if [ ! -d "venv" ]; then
     python3.11 -m venv venv
 fi
@@ -50,6 +56,9 @@ fi
 source venv/bin/activate
 
 python -m pip install --upgrade pip
+
+echo ""
+echo "Installing dependencies..."
 
 pip install -r requirements.txt
 pip install -r requirements-ml.txt
@@ -63,15 +72,22 @@ echo ""
 
 echo "Setup complete!"
 echo ""
-echo "CounterFit is starting now."
+echo "Starting CounterFit..."
 echo ""
 echo "Open:"
 echo "http://127.0.0.1:5000"
 echo ""
-echo "Configure CounterFit:"
+echo "Configure:"
 echo "- PiCamera"
 echo "- GPS UART on /dev/ttyAMA0"
 echo ""
-echo "After CounterFit setup, open a new terminal and run:"
-echo "./start.sh"
-counterfit
+echo "After configuring sensors,"
+echo "come back here and press Enter."
+
+echo ""
+
+counterfit &
+
+read -p "Press Enter to start SpotFinder..."
+
+./start.sh
