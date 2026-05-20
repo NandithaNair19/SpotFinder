@@ -2,16 +2,19 @@
 
 cd "$(dirname "$0")"
 
-chmod +x setup.sh start.sh
+echo "Fixing permissions..."
+
+chmod +x setup.sh
+chmod +x start.sh
 
 echo "Starting SpotFinder..."
 
 if [ ! -d "venv" ]; then
     echo "First time setup..."
-    bash ./setup.sh
+    bash setup.sh
 fi
 
-bash ./start.sh
+bash start.sh
 
 echo ""
 echo "Press any key to close..."
