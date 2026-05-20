@@ -8,10 +8,10 @@ echo "Starting SpotFinder..."
 
 if [ ! -d "venv" ]; then
     echo "First time setup..."
-    ./setup.sh
+    bash ./setup.sh
 fi
 
-./start.sh
+bash ./start.sh
 
 echo ""
 echo "Press any key to close..."
