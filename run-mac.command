@@ -6,7 +6,8 @@ echo "Removing macOS quarantine..."
 xattr -dr com.apple.quarantine . 2>/dev/null
 
 echo "Fixing permissions..."
-chmod +x setup.sh start.sh
+chmod +x setup.sh
+chmod +x start.sh
 
 echo "Starting SpotFinder..."
 
