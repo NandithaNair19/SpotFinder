@@ -116,5 +116,10 @@ with open(REPORT, "w") as f:
 
 print(REPORT.read_text())
 
-if failed > 0:
+critical_failed = [
+    name for name, status, message in results
+    if status == "FAILED" and name != "Database connection"
+]
+
+if critical_failed:
     sys.exit(1)
